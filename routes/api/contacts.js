@@ -7,28 +7,32 @@ const {
   deleteContact,
   editContact,
   updateStatusContact,
-} = require("../../controllers/contact.controller");
+} = require("../../controllers");
 const {
   validateBody,
   checkIfBodyExists,
   checkIfBodyStatusExists,
-} = require("../../middleWares/checkBodyRequest");
-const {
-  contactSchema,
-  contactStatusSchema,
-} = require("../../schema/validateSchema");
-const { tryCatcher } = require("../../helpers/helpers");
+  auth,
+} = require("../../middleWares");
+const { contactSchema, contactStatusSchema } = require("../../schema");
+const { tryCatcher } = require("../../helpers");
 
-router.get("/", tryCatcher(getListOfContacts));
+router.get("/", tryCatcher(auth), tryCatcher(getListOfContacts));
 
-router.get("/:contactId", tryCatcher(getContact));
+router.get("/:contactId", tryCatcher(auth), tryCatcher(getContact));
 
-router.post("/", validateBody(contactSchema), tryCatcher(createContact));
+router.post(
+  "/",
+  tryCatcher(auth),
+  validateBody(contactSchema),
+  tryCatcher(createContact)
+);
 
-router.delete("/:contactId", tryCatcher(deleteContact));
+router.delete("/:contactId", tryCatcher(auth), tryCatcher(deleteContact));
 
 router.patch(
   "/:contactId/favorite",
+  tryCatcher(auth),
   checkIfBodyStatusExists(),
   validateBody(contactStatusSchema),
   tryCatcher(updateStatusContact)
@@ -36,6 +40,7 @@ router.patch(
 
 router.put(
   "/:contactId",
+  tryCatcher(auth),
   checkIfBodyExists(),
   validateBody(contactSchema),
   tryCatcher(editContact)
