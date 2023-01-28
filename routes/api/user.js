@@ -8,20 +8,22 @@ const {
   logout,
   current,
   subscriptionUpdate,
+  avatarUpdate,
 } = require("../../controllers");
 const { validateUser, auth } = require("../../middleWares");
 const { userSchema, subscriptionSchema } = require("../../schema");
 const { tryCatcher } = require("../../helpers");
-const { path } = require("../../app");
 
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, "tmp"),
+  destination: function (req, file, cb) {
+    cb(null, path.resolve(__dirname, "../../tmp"));
+  },
   filename: function (req, file, cb) {
     cb(null, Math.random() + file.originalname);
   },
 });
 
-const upload = upload.multer({ storage });
+const upload = multer({ storage });
 
 userRouter.post("/signup", validateUser(userSchema), tryCatcher(register));
 userRouter.post("/login", validateUser(userSchema), tryCatcher(login));
@@ -36,8 +38,12 @@ userRouter.patch(
 userRouter.patch(
   "/avatars",
   tryCatcher(auth),
-  validateUser(subscriptionSchema),
-  tryCatcher(subscriptionUpdate)
+  upload.single("avatar"),
+  (req, res, next) => {
+    console.log(req.file);
+    next();
+  },
+  tryCatcher(avatarUpdate)
 );
 
 module.exports = userRouter;
