@@ -46,8 +46,10 @@ const avatarUpdate = async (req, res, next) => {
     );
 
     return res.status(200).json({
-      user: {
-        avatarURL: updatedUser.avatarURL,
+      data: {
+        user: {
+          avatarURL: updatedUser.avatarURL,
+        },
       },
     });
   } catch (error) {
