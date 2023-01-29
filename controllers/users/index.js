@@ -1,4 +1,4 @@
-const { current } = require("./currrent");
+const { current } = require("./current");
 const { subscriptionUpdate } = require("./subscriptionUpdate");
 const { avatarUpdate } = require("./avatarUpdate");
 

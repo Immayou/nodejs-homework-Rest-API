@@ -12,19 +12,19 @@ async function avatarUpdate(req, res, next) {
     throw new httpError(401, "Not authorized");
   }
   try {
-    const { filename } = req.file;
+    const { filename, originalname } = req.file;
     const tmpPath = path.resolve(__dirname, "../../tmp", filename);
+    const newPath = path.resolve(__dirname, "../../public/avatars", filename);
+    console.log(email + path.extname(filename));
     await Jimp.read(tmpPath)
       .then((filename) => {
         return filename
-          .resize(250, 250) // resize
-          .write("jjj.png"); // save
+          .resize(250, 250)
+          .write(path.resolve(__dirname, "../../tmp"));
       })
       .catch((err) => {
         console.error(err);
       });
-
-    const newPath = path.resolve(__dirname, "../../public/avatars", filename);
     await fs.rename(tmpPath, newPath);
 
     const userWithUpdatedAvatar = await User.findOneAndUpdate(
