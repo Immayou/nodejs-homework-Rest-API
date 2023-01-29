@@ -5,30 +5,31 @@ const fs = require("fs/promises");
 var Jimp = require("jimp");
 
 async function avatarUpdate(req, res, next) {
-  const { email } = req.user;
-  const user = await User.findOne({ email });
+  const { _id } = req.user;
+  const user = await User.findOne({ _id });
 
   if (!user) {
     throw new httpError(401, "Not authorized");
   }
   try {
-    const { filename, originalname } = req.file;
+    const { filename } = req.file;
     const tmpPath = path.resolve(__dirname, "../../tmp", filename);
     const newPath = path.resolve(__dirname, "../../public/avatars", filename);
-    console.log(email + path.extname(filename));
+    console.log(_id + "Avatar" + path.extname(filename));
+    const nameOfAvatarImage = `${_id} + "Avatar" + ${path.extname(filename)}`;
     await Jimp.read(tmpPath)
       .then((filename) => {
         return filename
           .resize(250, 250)
-          .write(path.resolve(__dirname, "../../tmp"));
+          .write(path.resolve(__dirname, "../../tmp", `${_id}+ "Avatar" `));
       })
       .catch((err) => {
         console.error(err);
       });
-    await fs.rename(tmpPath, newPath);
+    // await fs.rename(tmpPath, newPath);
 
     const userWithUpdatedAvatar = await User.findOneAndUpdate(
-      email,
+      _id,
       {
         avatarURL: `/avatars/${filename}`,
       },

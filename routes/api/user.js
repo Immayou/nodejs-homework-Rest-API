@@ -40,7 +40,6 @@ userRouter.patch(
   tryCatcher(auth),
   upload.single("avatar"),
   (req, res, next) => {
-    console.log(req.file);
     next();
   },
   tryCatcher(avatarUpdate)
