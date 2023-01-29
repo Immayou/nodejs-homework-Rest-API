@@ -1,47 +1,59 @@
-const { httpError } = require("../../helpers");
 const { User } = require("../../models/users");
+const fs = require("fs").promises;
 const path = require("path");
-const fs = require("fs/promises");
-var Jimp = require("jimp");
+const Jimp = require("jimp");
 
-async function avatarUpdate(req, res, next) {
-  const { _id } = req.user;
-  const user = await User.findOne({ _id });
-
-  if (!user) {
-    throw new httpError(401, "Not authorized");
-  }
+const avatarUpdate = async (req, res, next) => {
   try {
-    const { filename } = req.file;
-    const tmpPath = path.resolve(__dirname, "../../tmp", filename);
-    const newPath = path.resolve(__dirname, "../../public/avatars", filename);
-    console.log(_id + "Avatar" + path.extname(filename));
-    const nameOfAvatarImage = `${_id} + "Avatar" + ${path.extname(filename)}`;
-    await Jimp.read(tmpPath)
-      .then((filename) => {
-        return filename
-          .resize(250, 250)
-          .write(path.resolve(__dirname, "../../tmp", `${_id}+ "Avatar" `));
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-    // await fs.rename(tmpPath, newPath);
+    const { _id } = req.user;
+    const user = await User.findOne({ _id });
 
-    const userWithUpdatedAvatar = await User.findOneAndUpdate(
-      _id,
-      {
-        avatarURL: `/avatars/${filename}`,
-      },
-      {
-        new: true,
-      }
+    if (!user) {
+      throw new httpError(401, "Not authorized");
+    }
+
+    const { path: tmpPath, originalname } = req.file;
+
+    try {
+      await Jimp.read(tmpPath).then((avatar) => {
+        return avatar.resize(250, 250).writeAsync(tmpPath);
+      });
+    } catch (error) {
+      return next(error);
+    }
+
+    const imageFormat = path.extname(originalname);
+    const avatarNewName = `${_id}_Avatar${imageFormat}`;
+
+    const newPath = path.resolve(
+      __dirname,
+      "../../public/avatars",
+      avatarNewName
     );
-    return res.status(200).json({ avatarURL: userWithUpdatedAvatar.avatarURL });
+
+    try {
+      await fs.rename(tmpPath, newPath);
+    } catch (err) {
+      await fs.unlink(tmpPath);
+      return next(err);
+    }
+
+    const avatarURL = path.join("public", "avatars", avatarNewName);
+    const updatedUser = await User.findByIdAndUpdate(
+      _id,
+      { avatarURL },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      user: {
+        avatarURL: updatedUser.avatarURL,
+      },
+    });
   } catch (error) {
     next(error);
   }
-}
+};
 
 module.exports = {
   avatarUpdate,
