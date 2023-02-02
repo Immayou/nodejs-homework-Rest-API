@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const logger = require("morgan");
 const cors = require("cors");
 
@@ -9,6 +10,7 @@ const app = express();
 
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
 
+app.use(express.static("public"));
 app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
@@ -22,7 +24,6 @@ app.use((req, res) => {
 
 app.use((err, req, res, next) => {
   console.error("API error:", err.message);
-
   if (err.path === "_id") {
     res.status(400).json({ message: err.message });
   }
