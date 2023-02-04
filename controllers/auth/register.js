@@ -26,7 +26,7 @@ async function register(req, res, next) {
     await sendMail({
       to: email,
       subject: "Please, confirm your email",
-      html: `<a href:"localhost:3001/users/verify/${verificationToken}">Confirm your email</a>`,
+      html: `<a href="http://localhost:3000/users/verify/${verificationToken}">Confirm your email</a>`,
     });
     return res.status(201).json({ user: { email, id: savedUser._id } });
   } catch (error) {

@@ -1,4 +1,10 @@
-const { login, logout, register } = require("./auth");
+const {
+  login,
+  logout,
+  register,
+  verifyEmail,
+  emailResender,
+} = require("./auth");
 const {
   getContact,
   getListOfContacts,
@@ -22,4 +28,6 @@ module.exports = {
   current,
   subscriptionUpdate,
   avatarUpdate,
+  verifyEmail,
+  emailResender,
 };

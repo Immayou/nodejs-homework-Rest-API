@@ -18,23 +18,27 @@ function tryCatcher(endpointFunction) {
 }
 
 async function sendMail({ to, subject, html }) {
-  const email = {
-    from: "djulia@ukr.net",
-    to,
-    subject,
-    html,
-  };
+  try {
+    const email = {
+      from: "djulia@ukr.net",
+      to,
+      subject,
+      html,
+    };
 
-  const transport = nodemailer.createTransport({
-    host: "sandbox.smtp.mailtrap.io",
-    port: 2525,
-    auth: {
-      user: EMAIL_USER,
-      pass: EMAIL_PASS,
-    },
-  });
+    const transport = nodemailer.createTransport({
+      host: "sandbox.smtp.mailtrap.io",
+      port: 2525,
+      auth: {
+        user: EMAIL_USER,
+        pass: EMAIL_PASS,
+      },
+    });
 
-  await transport.sendMail(email);
+    const response = await transport.sendMail(email);
+  } catch (error) {
+    httpError(500, "Send email error");
+  }
 }
 
 module.exports = { httpError, tryCatcher, sendMail };
