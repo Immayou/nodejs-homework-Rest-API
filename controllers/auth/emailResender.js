@@ -8,10 +8,11 @@ async function emailResender(req, res, next) {
       return res.status(400).json({ message: "missing required field email" });
     }
     const user = await User.findOne({ email });
+    if (!user) {
+      throw new httpError(404, "User is not found");
+    }
     if (user.verify) {
-      return res
-        .status(400)
-        .json({ message: "Verification has already been passed" });
+      return httpError(400, "Verification has already been passed");
     }
     await sendMail({
       to: email,
