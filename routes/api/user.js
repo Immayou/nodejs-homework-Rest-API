@@ -9,6 +9,8 @@ const {
   current,
   subscriptionUpdate,
   avatarUpdate,
+  verifyEmail,
+  emailResender,
 } = require("../../controllers");
 const { validateUser, auth } = require("../../middleWares");
 const { userSchema, subscriptionSchema } = require("../../schema");
@@ -44,5 +46,7 @@ userRouter.patch(
   },
   tryCatcher(avatarUpdate)
 );
+userRouter.post("/verify", tryCatcher(emailResender));
+userRouter.get("/verify/:verificationToken", tryCatcher(verifyEmail));
 
 module.exports = userRouter;
